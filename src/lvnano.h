@@ -1,5 +1,5 @@
-/*
-    Copyright (c) 2012-2013 Martin Sustrik  All rights reserved.
+/*  
+	Copyright (c) 2014 Daniel Smith  All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"),
@@ -20,19 +20,31 @@
     IN THE SOFTWARE.
 */
 
-#ifndef NN_GLOBAL_INCLUDED
-#define NN_GLOBAL_INCLUDED
+#ifndef lvnano_h
+#define lvnano_h
 
-/*  Provides access to the list of available transports. */
-struct nn_transport *nn_global_transport (int id);
+#include "nn.h"
+#include <extcode.h>
 
-/*  Returns the global worker thread pool. */
-struct nn_pool *nn_global_getpool ();
-int nn_global_print_errors();
+//instance data pointer for labview's use
+typedef struct {
+	int s;
+} lvnano_inst, *lvnano_ptr, **lvnano_hdl;
 
-/*  Max number of concurrent SP sockets. */
-#define NN_MAX_SOCKETS 512
+#define idp2s(x) (((lvnano_ptr)(*x))->s)
 
-int nn_socket_zombify(int s);
+//actual functions
+NN_EXPORT int lvnano_receive(int s, LStrHandle h, int flags, InstanceDataPtr * idp);
 
-#endif
+NN_EXPORT int lvnano_send(int s, LStrHandle h, int flags, InstanceDataPtr * idp);
+
+
+//labview CLFN callbacks
+NN_EXPORT MgErr lvnano_alloc(InstanceDataPtr * idp);
+
+NN_EXPORT MgErr lvnano_dealloc(InstanceDataPtr * idp);
+
+NN_EXPORT MgErr lvnano_abort(InstanceDataPtr * idp);
+
+
+#endif //lvnano_h

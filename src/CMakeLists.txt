@@ -291,14 +291,39 @@ endif ()
 
 add_library (nanomsg SHARED ${NN_SOURCES})
 
+
+LIST (APPEND NN_SOURCES
+    lvnano.h
+    lvnano.c
+)
+
+add_library (lvnanomsg SHARED ${NN_SOURCES})    
+
 add_definitions (-DNN_EXPORTS)
 add_definitions (-DNN_USE_LITERAL_IFADDR)
+
+#Turn off SAFESEH for LabVIEWV.lib
+SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
+SET (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
 
 target_link_libraries (nanomsg ws2_32)
 target_link_libraries (nanomsg Mswsock.lib)
 target_link_libraries (nanomsg Advapi32.lib)
 
+#add cintools directory for labview
+target_link_libraries (lvnanomsg ws2_32)
+target_link_libraries (lvnanomsg Mswsock.lib)
+target_link_libraries (lvnanomsg Advapi32.lib)
+include_directories ("$ENV{PROGRAMFILES}\\National Instruments\\LabVIEW 2013\\cintools" )
+target_link_libraries (lvnanomsg "$ENV{PROGRAMFILES}\\National Instruments\\LabVIEW 2013\\cintools\\labviewv.lib")
+
 install(TARGETS nanomsg
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin)
+	
+install(TARGETS lvnanomsg
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
