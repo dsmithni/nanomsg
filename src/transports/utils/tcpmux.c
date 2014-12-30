@@ -20,8 +20,8 @@
     IN THE SOFTWARE.
 */
 
-#include "../utils/err.h"
-#include "../utils/wire.h"
+#include "../../utils/err.h"
+#include "../../utils/wire.h"
 
 #include <unistd.h>
 #include <sys/socket.h>
