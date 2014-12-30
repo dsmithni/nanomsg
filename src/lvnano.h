@@ -25,6 +25,8 @@
 
 #include "nn.h"
 #include <extcode.h>
+#include "utils\thread.h"
+#include "utils\mutex.h"
 
 //instance data pointer for labview's use
 typedef struct {
@@ -33,18 +35,36 @@ typedef struct {
 
 #define idp2s(x) (((lvnano_ptr)(*x))->s)
 
-//actual functions
-NN_EXPORT int lvnano_receive(int s, LStrHandle h, int flags, InstanceDataPtr * idp);
 
+typedef struct {
+	struct nn_thread * rthread;
+	LVBoolean reqAbort;
+	int s;
+	LVUserEventRef lvevent;
+} lvnano_rthread_ctx;
+
+typedef LStrHandle lvnano_rthread_eventdata;
+
+//tx and rx functions
+NN_EXPORT int lvnano_receive(int s, LStrHandle h, int flags, InstanceDataPtr * idp);
 NN_EXPORT int lvnano_send(int s, LStrHandle h, int flags, InstanceDataPtr * idp);
 
 
 //labview CLFN callbacks
 NN_EXPORT MgErr lvnano_alloc(InstanceDataPtr * idp);
-
 NN_EXPORT MgErr lvnano_dealloc(InstanceDataPtr * idp);
-
 NN_EXPORT MgErr lvnano_abort(InstanceDataPtr * idp);
+
+//receiver loop
+NN_EXPORT void lvnano_receiver(void* p);
+NN_EXPORT int lvnano_start_receiver(int s, lvnano_rthread_ctx ** rctxh, LVUserEventRef * lvevent);
+NN_EXPORT int lvnano_stop_receiver(lvnano_rthread_ctx * rctxp);
+//rloop callbacks
+NN_EXPORT MgErr lvnano_rthread_alloc(InstanceDataPtr * idp);
+NN_EXPORT MgErr lvnano_rthread_dealloc(InstanceDataPtr * idp);
+NN_EXPORT MgErr lvnano_rthread_abort(InstanceDataPtr * idp);
+
+
 
 
 #endif //lvnano_h

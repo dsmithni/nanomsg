@@ -26,8 +26,9 @@
 #include "lvnano.h"
 #include <extcode.h>
 #include "core\global.h"
+#include "utils\mutex.h"
 
-static volatile int lvnano_count = 0;
+static int lvnano_count = 0;
 
 /*
 Basically follows "zero-copy" receive method from doc files with an extra copy to move from lvland to nanoland
@@ -60,7 +61,6 @@ int lvnano_receive(int s, LStrHandle h, int flags, InstanceDataPtr * idp)
 
 	return 0;
 }
-
 
 /*
 Basically follows "zero-copy" send method from doc files with an extra copy to move from lvland to nanoland
@@ -135,9 +135,76 @@ and ever and ever, which is what nn_term does.s
 */
 MgErr lvnano_abort(InstanceDataPtr * idp) {
 	MgErr err = mgNoErr;
-	if (idp2s(idp) >= 0) {
+	if (idp2s(idp) >= 0) { 
 		err = nn_socket_zombify(idp2s(idp));
 	}
 	return mgNoErr;
 }
+
+
+
+
+/*rloop functions*/
+
+
+void lvnano_receiver(void* p) {
+	lvnano_rthread_ctx * rctxp = (lvnano_rthread_ctx*)p;
+
+	while (!rctxp->reqAbort) {
+		void * buf = NULL;
+		int rlen = nn_recv(rctxp->s, &buf, NN_MSG, 0);
+		if (rlen > 0) {
+			lvnano_rthread_eventdata e = (lvnano_rthread_eventdata) DSNewHandle(rlen + sizeof(int32));
+			LStrLen(*e) = rlen;
+			MoveBlock(buf, LHStrBuf(e), rlen);
+			nn_freemsg(buf);
+			PostLVUserEvent((rctxp->lvevent), &e);
+		}
+	}
+	return;
+}
+
+int lvnano_start_receiver(int s, lvnano_rthread_ctx ** rctxh, LVUserEventRef * lvevent) {
+	struct nn_thread * rthread = (struct nn_thread *)DSNewPClr(sizeof(struct nn_thread));
+
+	//initialize rthread context
+	*rctxh = (lvnano_rthread_ctx *)DSNewPClr(sizeof(lvnano_rthread_ctx));
+	(*rctxh)->s = s;
+	(*rctxh)->lvevent = *lvevent;
+	((*rctxh)->reqAbort) = LVFALSE;
+	(*rctxh)->rthread = rthread;
+
+	//launch thread
+	nn_thread_init(rthread, lvnano_receiver, (void*)(*rctxh));
+
+	return 0;
+}
+
+int lvnano_stop_receiver(lvnano_rthread_ctx * rctxp) {
+	(rctxp->reqAbort) = LVTRUE;
+	nn_socket_unblock_op(rctxp->s);
+	nn_thread_term(rctxp->rthread);
+	DSDisposePtr(rctxp->rthread);
+	DSDisposePtr(rctxp);
+	return 0;
+}
+
+//todo, list of active receivers
+
+MgErr lvnano_rthread_alloc(InstanceDataPtr * idp) {
+	return mgNoErr;
+}
+
+
+MgErr lvnano_rthread_dealloc(InstanceDataPtr * idp) {
+	return mgNoErr;
+}
+
+MgErr lvnano_rthread_abort(InstanceDataPtr * idp) {
+	MgErr err = mgNoErr;
+	return mgNoErr;
+}
+
+
+
 #endif
