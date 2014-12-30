@@ -47,13 +47,14 @@
 	#define NN_USE_IFADDRS 1
 	#define HAVE_ACCEPT4 1
 	#define NN_HAVE_ACCEPT4 1
-	#define NN_HAVE_GETADDRINFO_A 1
+//	#define NN_HAVE_GETADDRINFO_A 1
 	#define NN_HAVE_SOCKETPAIR 1
 	#define NN_HAVE_SEMAPHORE 1
 	#define NN_HAVE_GCC_ATOMIC_BUILTINS 1
 	#define NN_USE_EVENTFD 1
 	#define HAVE_DLFCN_H 1
 	#define LT_OBJDIR ".libs/"
+	#define NN_HAVE_MSG_CONTROL 1
 
 #endif //linux X64
 
@@ -106,12 +107,13 @@
 	#define NN_USE_IFADDRS 1
 	#define HAVE_ACCEPT4 1
 	#define NN_HAVE_ACCEPT4 1
-	#define NN_HAVE_GETADDRINFO_A 1
+//	#define NN_HAVE_GETADDRINFO_A 1
 	#define NN_HAVE_SOCKETPAIR 1
 	#define NN_HAVE_SEMAPHORE 1
 	#define NN_HAVE_GCC_ATOMIC_BUILTINS 1
 	#define NN_USE_EVENTFD 1
 	#define HAVE_DLFCN_H 1
 	#define LT_OBJDIR ".libs/"
+	#define NN_HAVE_MSG_CONTROL 1
 
 #endif //linux ARM
