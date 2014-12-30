@@ -181,12 +181,16 @@ int lvnano_start_receiver(int s, lvnano_rthread_ctx ** rctxh, LVUserEventRef * l
 }
 
 int lvnano_stop_receiver(lvnano_rthread_ctx * rctxp) {
-	(rctxp->reqAbort) = LVTRUE;
-	nn_socket_unblock_op(rctxp->s);
-	nn_thread_term(rctxp->rthread);
-	DSDisposePtr(rctxp->rthread);
-	DSDisposePtr(rctxp);
-	return 0;
+	if (rctxp) {
+		(rctxp->reqAbort) = LVTRUE;
+		nn_socket_zombify(rctxp->s);
+		nn_thread_term(rctxp->rthread);
+		nn_close(rctxp->s);
+		DSDisposePtr(rctxp->rthread);
+		DSDisposePtr(rctxp);
+		return 0;
+	}
+	return -1;
 }
 
 //todo, list of active receivers
