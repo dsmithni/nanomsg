@@ -33,6 +33,4 @@ int nn_global_print_errors();
 /*  Max number of concurrent SP sockets. */
 #define NN_MAX_SOCKETS 512
 
-int nn_socket_zombify(int s);
-
 #endif

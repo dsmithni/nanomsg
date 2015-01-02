@@ -192,6 +192,8 @@ int nn_sock_term (struct nn_sock *self)
     int rc;
     int i;
 
+	nn_sock_zombify(self);
+
     /*  Ask the state machine to start closing the socket. */
     nn_ctx_enter (&self->ctx);
     nn_fsm_stop (&self->fsm);
@@ -668,6 +670,10 @@ int nn_sock_recv (struct nn_sock *self, struct nn_msg *msg, int flags)
         /*  With blocking recv, wait while there are new pipes available
             for receiving. */
         nn_ctx_leave (&self->ctx);
+		
+		if (nn_slow(self->state == NN_SOCK_STATE_ZOMBIE)) {
+			return -ETERM;
+		}
         rc = nn_efd_wait (&self->rcvfd, timeout);
         if (nn_slow (rc == -ETIMEDOUT))
             return -EAGAIN;
@@ -678,9 +684,17 @@ int nn_sock_recv (struct nn_sock *self, struct nn_msg *msg, int flags)
         /*
          *  Double check if pipes are still available for receiving
          */
-        if (!nn_efd_wait (&self->rcvfd, 0)) {
+
+
+		if ((self->state != NN_SOCK_STATE_ZOMBIE) && !nn_efd_wait(&self->rcvfd, 0)) {
             self->flags |= NN_SOCK_FLAG_IN;
         }
+
+		/* may have called nn_close in the meantime*/
+		if (nn_slow(self->state == NN_SOCK_STATE_ZOMBIE)) {
+			nn_ctx_leave(&self->ctx);
+			return -ETERM;
+		}
 
         /*  If needed, re-compute the timeout to reflect the time that have
             already elapsed. */

@@ -1331,19 +1331,3 @@ static void nn_global_shutdown (struct nn_fsm *self,
 int nn_global_print_errors () {
     return self.print_errors;
 }
-
-int nn_socket_zombify(int s) {
-	int err = 0;
-	if (s >= 0) {
-		nn_glock_lock();
-
-		if (self.socks && self.nsocks) {
-			if (self.socks[s]) {
-				nn_sock_zombify(self.socks[s]);
-			}
-		}
-
-		nn_glock_unlock();
-	}
-	return 0;
-}

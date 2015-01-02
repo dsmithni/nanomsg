@@ -134,9 +134,8 @@ does what nn_term() does to the socket without totally killing off the global st
 and ever and ever, which is what nn_term does.s
 */
 MgErr lvnano_abort(InstanceDataPtr * idp) {
-	MgErr err = mgNoErr;
 	if (idp2s(idp) >= 0) { 
-		err = nn_socket_zombify(idp2s(idp));
+		nn_close(idp2s(idp));
 	}
 	return mgNoErr;
 }
@@ -159,6 +158,10 @@ void lvnano_receiver(void* p) {
 			MoveBlock(buf, LHStrBuf(e), rlen);
 			nn_freemsg(buf);
 			PostLVUserEvent((rctxp->lvevent), &e);
+		}
+		else if (rlen == ETERM || rlen == EINTR) {
+			//someone aborted the socket
+			return;
 		}
 	}
 	return;
@@ -183,9 +186,8 @@ int lvnano_start_receiver(int s, lvnano_rthread_ctx ** rctxh, LVUserEventRef * l
 int lvnano_stop_receiver(lvnano_rthread_ctx * rctxp) {
 	if (rctxp) {
 		(rctxp->reqAbort) = LVTRUE;
-		nn_socket_zombify(rctxp->s);
-		nn_thread_term(rctxp->rthread);
 		nn_close(rctxp->s);
+		nn_thread_term(rctxp->rthread);
 		DSDisposePtr(rctxp->rthread);
 		DSDisposePtr(rctxp);
 		return 0;
