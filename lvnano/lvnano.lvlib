@@ -29,6 +29,11 @@
 		<Item Name="nn symbol info.vi" Type="VI" URL="../nn symbol info.vi"/>
 		<Item Name="nn symbol.vi" Type="VI" URL="../nn symbol.vi"/>
 	</Item>
+	<Item Name="receiver loop" Type="Folder">
+		<Item Name="receive loop callback.vi" Type="VI" URL="../receive loop callback.vi"/>
+		<Item Name="start receiver loop.vi" Type="VI" URL="../start receiver loop.vi"/>
+		<Item Name="stop receiver loop.vi" Type="VI" URL="../stop receiver loop.vi"/>
+	</Item>
 	<Item Name="sockets" Type="Folder">
 		<Item Name="abort nanomessage.vi" Type="VI" URL="../abort nanomessage.vi"/>
 		<Item Name="close socket.vi" Type="VI" URL="../close socket.vi"/>
@@ -54,8 +59,10 @@
 		<Item Name="poll settings.ctl" Type="VI" URL="../poll settings.ctl"/>
 		<Item Name="polling flags.ctl" Type="VI" URL="../polling flags.ctl"/>
 		<Item Name="protocol.ctl" Type="VI" URL="../protocol.ctl"/>
+		<Item Name="receive loop reference.ctl" Type="VI" URL="../receive loop reference.ctl"/>
 		<Item Name="socket option levels.ctl" Type="VI" URL="../socket option levels.ctl"/>
 		<Item Name="socket options.ctl" Type="VI" URL="../socket options.ctl"/>
+		<Item Name="socket reference.ctl" Type="VI" URL="../socket reference.ctl"/>
 		<Item Name="TX and RX flags.ctl" Type="VI" URL="../TX and RX flags.ctl"/>
 	</Item>
 	<Item Name="library path.vi" Type="VI" URL="../library path.vi"/>
